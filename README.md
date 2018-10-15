@@ -10,3 +10,5 @@ Theme: Transformation Tools Used: FL Studios, Microsoft Paint, Paint.NET, Unity
 
 Inquisitive John
 A 2D platformer in which John, a monkey, tries to get as far as he can through a Bee and Tiger filled jungle.
+
+https://teamgeorge.itch.io/inquisitive-john
