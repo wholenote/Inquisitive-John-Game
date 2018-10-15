@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Pick Up
+  - Flying Enemy
+  - Trigger Bee
+  - Health
   layers:
   - Default
   - TransparentFX

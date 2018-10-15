@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class CharacterController2D : MonoBehaviour
 {
@@ -18,8 +19,18 @@ public class CharacterController2D : MonoBehaviour
 	private Rigidbody2D m_Rigidbody2D;
 	private bool m_FacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
+    private int bananaCount=6;
+    private bool addBanana;
+    private bool remBanana;
+    public Text countText;
+    public GameObject banana;
+    public Sprite halfNana;
+    public Sprite fullNana;
+    public Sprite blank;
+    public Canvas canvas;
+    Image m_Image;
 
-	[Header("Events")]
+    [Header("Events")]
 	[Space]
 
 	public UnityEvent OnLandEvent;
@@ -30,7 +41,60 @@ public class CharacterController2D : MonoBehaviour
 	public BoolEvent OnCrouchEvent;
 	private bool m_wasCrouching = false;
 
-	private void Awake()
+    void Start()
+    {
+        SetCountText();
+        addBanana = false;
+        remBanana = false;
+        bananaCount = 6;
+        SetBananas(bananaCount);
+        Canvas.ForceUpdateCanvases();
+    }
+
+    void SetCountText()
+    {
+        countText.text = "Banana Meter: " + bananaCount.ToString();
+    }
+
+    void SetBananas(int bananas)
+    {
+        
+        GameObject health;
+        string bananaName = "BananaImage" + ((int)Mathf.Ceil(bananas / 2)).ToString();
+        Debug.Log(bananaName);
+
+        for (int i = 1; i<=(int)Mathf.Ceil(bananas/2);i++)
+        {
+            bananaName = "BananaImage" + i.ToString();
+            health = GameObject.Find(bananaName);
+            health.SetActive(true);
+            m_Image = health.GetComponent<Image>();
+            m_Image.sprite = fullNana;
+            Canvas.ForceUpdateCanvases();
+        }
+        
+        for (int i = 5; i > (int)Mathf.Ceil(bananas / 2)+1; i--)
+        {
+            bananaName = "BananaImage" + i.ToString();
+            health = GameObject.Find(bananaName);
+            m_Image = health.GetComponent<Image>();
+            m_Image.sprite = blank;
+            Canvas.ForceUpdateCanvases();
+        }
+        
+            if (bananas%2==1)
+        {
+            bananaName = "BananaImage" + (((int)Mathf.Ceil(bananas / 2))+1).ToString();
+            health = GameObject.Find(bananaName);
+            health.SetActive(true);
+            m_Image = health.GetComponent<Image>();
+            m_Image.sprite = halfNana;
+            Canvas.ForceUpdateCanvases();
+        }
+        Canvas.ForceUpdateCanvases();
+    }
+
+    private void Awake()
 	{
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
 
@@ -58,10 +122,95 @@ public class CharacterController2D : MonoBehaviour
 					OnLandEvent.Invoke();
 			}
 		}
-	}
+        
+    }
+
+    private void Update()
+    {
+        SetBananas(bananaCount);
+        SetCountText();
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.tag == "Pick Up")
+        {
+            other.gameObject.SetActive(false);
+            ++bananaCount;
+
+            SetBananas(bananaCount);
+            SetCountText();
+
+            //string bananaName = "BananaImage" + bananaCount.ToString();
+            //GameObject health = GameObject.Find(bananaName);
 
 
-	public void Move(float move, bool crouch, bool jump)
+            /*
+            if (bananaCount % 2 == 1) {
+
+                bananaName = "BananaImage" + ((int)(bananaCount/2) + 1).ToString();
+                
+                health = GameObject.Find(bananaName);
+                health.SetActive(true);
+                m_Image = health.GetComponent<Image>();
+                m_Image.sprite = halfNana;
+                Canvas.ForceUpdateCanvases();
+                SetCountText();
+            }
+            else {
+                bananaName = "BananaImage" + ((int)(bananaCount / 2)).ToString();
+                health = GameObject.Find(bananaName);
+                health.SetActive(true);
+                m_Image = health.GetComponent<Image>();
+                m_Image.sprite = fullNana;
+                Canvas.ForceUpdateCanvases();
+                SetCountText();
+            }
+            */
+        }else if (other.gameObject.tag == "Flying Enemy") {
+            --bananaCount;
+
+            SetBananas(bananaCount);
+            SetCountText();
+
+            Vector3 offset = new Vector3(1, 1, 0);
+            other.transform.position = other.transform.position + offset; 
+
+            //string bananaName = "BananaImage" + (bananaCount/2).ToString();
+            //GameObject health = GameObject.Find(bananaName);
+
+            /*
+            if (((bananaCount) % 2) == 1)
+            {
+                //had a half banana in the last spot
+                //remove the banana entirely
+                bananaName = "BananaImage" + ((int)(bananaCount / 2) + 1).ToString();
+                health = GameObject.Find(bananaName);
+                health.SetActive(false);
+                Canvas.ForceUpdateCanvases();
+                SetCountText();
+            }
+            else
+            {
+                //had a whole banana in the last spot
+                //put a half banana where the whole one was
+                m_Image = health.GetComponent<Image>();
+                m_Image.sprite = halfNana;
+                Canvas.ForceUpdateCanvases();
+                SetCountText();
+            }
+            */
+        }
+        else if (other.gameObject.tag == "Trigger Bee"){
+            GameObject bee = GameObject.Find("Bee6");
+
+        }
+        Canvas.ForceUpdateCanvases();
+        SetCountText();
+    }
+
+
+    public void Move(float move, bool crouch, bool jump)
 	{
 		// If crouching, check to see if the character can stand up
 		if (!crouch)
@@ -138,9 +287,6 @@ public class CharacterController2D : MonoBehaviour
 		// Switch the way the player is labelled as facing.
 		m_FacingRight = !m_FacingRight;
 
-		// Multiply the player's x local scale by -1.
-		Vector3 theScale = transform.localScale;
-		theScale.x *= -1;
-		transform.localScale = theScale;
+        transform.Rotate(0f, 180f, 0f);
 	}
 }
